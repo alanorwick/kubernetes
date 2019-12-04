@@ -162,6 +162,7 @@ func cleanupFinishedJobs(sj *batchv1beta1.CronJob, js []batchv1.Job, jc jobContr
 	allJobs := []batchv1.Job{}
 
 	for _, job := range js {
+		allJobs = append(allJobs, job)
 		isFinished, finishedStatus := getFinishedStatus(&job)
 		if isFinished && finishedStatus == batchv1.JobComplete {
 			succesfulJobs = append(succesfulJobs, job)
