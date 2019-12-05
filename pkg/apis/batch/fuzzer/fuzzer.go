@@ -65,6 +65,8 @@ var Funcs = func(codecs runtimeserializer.CodecFactory) []interface{} {
 			sj.SuccessfulJobsHistoryLimit = &successfulJobsHistoryLimit
 			failedJobsHistoryLimit := int32(c.Rand.Int31())
 			sj.FailedJobsHistoryLimit = &failedJobsHistoryLimit
+			concurrentJobsLimit := int32(c.Rand.Int31())
+			sj.concurrentJobsLimit = &concurrentJobsLimit
 		},
 		func(cp *batch.ConcurrencyPolicy, c fuzz.Continue) {
 			policies := []batch.ConcurrencyPolicy{batch.AllowConcurrent, batch.ForbidConcurrent, batch.ReplaceConcurrent}

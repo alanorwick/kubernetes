@@ -381,6 +381,7 @@ func TestCleanupFinishedJobs_DeleteOrNot(t *testing.T) {
 		now                        time.Time
 		successfulJobsHistoryLimit *int32
 		failedJobsHistoryLimit     *int32
+		concurrentJobsLimit		   *int32
 		expectActive               int
 	}{
 		"success. job limit reached": {
@@ -494,7 +495,8 @@ func TestCleanupFinishedJobs_DeleteOrNot(t *testing.T) {
 
 		sj.Spec.SuccessfulJobsHistoryLimit = tc.successfulJobsHistoryLimit
 		sj.Spec.FailedJobsHistoryLimit = tc.failedJobsHistoryLimit
-
+		sj.Spec.concurrentJobsLimit = tc.concurrentJobsLimit
+		
 		var (
 			job *batchv1.Job
 			err error

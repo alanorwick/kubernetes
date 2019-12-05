@@ -43,6 +43,7 @@ func TestSetDefaultCronJob(t *testing.T) {
 					Suspend:                    newBool(false),
 					SuccessfulJobsHistoryLimit: utilpointer.Int32Ptr(3),
 					FailedJobsHistoryLimit:     utilpointer.Int32Ptr(1),
+					ConcurrentJobsLimit:     utilpointer.Int32Ptr(10),
 				},
 			},
 		},
@@ -53,6 +54,7 @@ func TestSetDefaultCronJob(t *testing.T) {
 					Suspend:                    newBool(true),
 					SuccessfulJobsHistoryLimit: utilpointer.Int32Ptr(5),
 					FailedJobsHistoryLimit:     utilpointer.Int32Ptr(5),
+					ConcurrentJobsLimit:     	utilpointer.Int32Ptr(15),
 				},
 			},
 			expected: &batchv1beta1.CronJob{
@@ -61,6 +63,7 @@ func TestSetDefaultCronJob(t *testing.T) {
 					Suspend:                    newBool(true),
 					SuccessfulJobsHistoryLimit: utilpointer.Int32Ptr(5),
 					FailedJobsHistoryLimit:     utilpointer.Int32Ptr(5),
+					ConcurrentJobsLimit:     utilpointer.Int32Ptr(15),
 				},
 			},
 		},
@@ -86,6 +89,9 @@ func TestSetDefaultCronJob(t *testing.T) {
 		}
 		if *actual.Spec.FailedJobsHistoryLimit != *expected.Spec.FailedJobsHistoryLimit {
 			t.Errorf("%s: got different failedJobsHistoryLimit than expected: %v %v", name, *actual.Spec.FailedJobsHistoryLimit, *expected.Spec.FailedJobsHistoryLimit)
+		}
+		if *actual.Spec.ConcurrentJobsLimit != *expected.Spec.ConcurrentJobsLimit {
+			t.Errorf("%s: got different concurrentJobsLimit than expected: %v %v", name, *actual.Spec.ConcurrentJobsLimit, *expected.Spec.ConcurrentJobsLimit)
 		}
 	}
 }

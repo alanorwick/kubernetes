@@ -159,15 +159,16 @@ func cleanupFinishedJobs(sj *batchv1beta1.CronJob, js []batchv1.Job, jc jobContr
 
 	failedJobs := []batchv1.Job{}
 	succesfulJobs := []batchv1.Job{}
-	allJobs := []batchv1.Job{}
+	runningJobs := []batchv1.Job{}
 
 	for _, job := range js {
-		allJobs = append(allJobs, job)
 		isFinished, finishedStatus := getFinishedStatus(&job)
 		if isFinished && finishedStatus == batchv1.JobComplete {
 			succesfulJobs = append(succesfulJobs, job)
 		} else if isFinished && finishedStatus == batchv1.JobFailed {
 			failedJobs = append(failedJobs, job)
+		} else {
+			runningJobs = append(runningJobs, job)
 		}
 	}
 
@@ -187,15 +188,18 @@ func cleanupFinishedJobs(sj *batchv1beta1.CronJob, js []batchv1.Job, jc jobContr
 			recorder)
 	}
 
+	if sj.Spec.ConcurrentJobsLimit != nil {
+		removeOldestJobs(sj,
+			js,
+			jc,
+			*sj.Spec.ConcurrentJobsLimit,
+			recorder)
+	}
+
 	// Update the CronJob, in case jobs were removed from the list.
 	if _, err := sjc.UpdateStatus(sj); err != nil {
 		nameForLog := fmt.Sprintf("%s/%s", sj.Namespace, sj.Name)
 		klog.Infof("Unable to update status for %s (rv = %s): %v", nameForLog, sj.ResourceVersion, err)
-		removeOldestJobs(sj,
-			allJobs,
-			jc,
-			*sj.Spec.FailedJobsHistoryLimit,
-			recorder)
 	}
 }
 

@@ -40,4 +40,8 @@ func SetDefaults_CronJob(obj *batchv1beta1.CronJob) {
 		obj.Spec.FailedJobsHistoryLimit = new(int32)
 		*obj.Spec.FailedJobsHistoryLimit = 1
 	}
+	if obj.Spec.ConcurrentJobsLimit == nil {
+		obj.Spec.ConcurrentJobsLimit = new(int32)
+		*obj.Spec.ConcurrentJobsLimit = 10
+	}
 }

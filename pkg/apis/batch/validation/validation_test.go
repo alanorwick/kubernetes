@@ -468,6 +468,23 @@ func TestValidateCronJob(t *testing.T) {
 				},
 			},
 		},
+		"spec.concurrentJobsLimit: must be greater than or equal to 0": {
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "mycronjob",
+				Namespace: metav1.NamespaceDefault,
+				UID:       types.UID("1a2b3c"),
+			},
+			Spec: batch.CronJobSpec{
+				Schedule:               "* * * * ?",
+				ConcurrencyPolicy:      batch.AllowConcurrent,
+				concurrentJobsLimit: &negative,
+				JobTemplate: batch.JobTemplateSpec{
+					Spec: batch.JobSpec{
+						Template: validPodTemplateSpec,
+					},
+				},
+			},
+		},
 		"spec.concurrencyPolicy: Required value": {
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "mycronjob",
