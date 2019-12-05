@@ -25,7 +25,7 @@ import (
 	"time"
 
 	batch "k8s.io/api/batch/v1"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -625,9 +625,15 @@ func (jm *JobController) deleteJobPods(job *batch.Job, pods []*v1.Pod, errCh cha
 // pastBackoffLimitOnFailure checks if container restartCounts sum exceeds BackoffLimit
 // this method applies only to pods with restartPolicy == OnFailure
 func pastBackoffLimitOnFailure(job *batch.Job, pods []*v1.Pod) bool {
+	klog.V(4).Infof("Entering PAST_BACKOFF_LIMIT_ON_FAILURE!")
+
 	if job.Spec.Template.Spec.RestartPolicy != v1.RestartPolicyOnFailure {
 		return false
 	}
+
+	klog.V(4).Infof("Iterating through pods in pastBackoffLimitOnFailure")
+
+	// TODO: Should back off limit on failure  "ErrDiskImagePull"
 	result := int32(0)
 	for i := range pods {
 		po := pods[i]
