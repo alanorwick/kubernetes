@@ -126,6 +126,12 @@ type CronJobSpec struct {
 	// Defaults to 1.
 	// +optional
 	FailedJobsHistoryLimit *int32 `json:"failedJobsHistoryLimit,omitempty" protobuf:"varint,7,opt,name=failedJobsHistoryLimit"`
+
+	// The number of running jobs to retain.
+	// This is a pointer to distinguish between explicit zero and not specified.
+	// +optional
+	ConcurrentJobsLimit *int32
+
 }
 
 // ConcurrencyPolicy describes how the job will be handled.
