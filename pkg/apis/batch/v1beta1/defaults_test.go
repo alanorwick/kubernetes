@@ -43,7 +43,7 @@ func TestSetDefaultCronJob(t *testing.T) {
 					Suspend:                    newBool(false),
 					SuccessfulJobsHistoryLimit: utilpointer.Int32Ptr(3),
 					FailedJobsHistoryLimit:     utilpointer.Int32Ptr(1),
-					ConcurrentJobsLimit:     utilpointer.Int32Ptr(10),
+					ConcurrentJobsLimit:     utilpointer.Int32Ptr(100),
 				},
 			},
 		},

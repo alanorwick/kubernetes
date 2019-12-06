@@ -2172,6 +2172,11 @@ func describeCronJob(cronJob *batchv1beta1.CronJob, events *corev1.EventList) (s
 		} else {
 			w.Write(LEVEL_0, "Failed Job History Limit:\t<unset>\n")
 		}
+		if cronJob.Spec.ConcurrentJobsLimit != nil {
+			w.Write(LEVEL_0, "Concurrent Job Limit Limit:\t%d\n", *cronJob.Spec.ConcurrentJobsLimit)
+		} else {
+			w.Write(LEVEL_0, "Concurrent Job Limit:\t<unset>\n")
+		}
 		if cronJob.Spec.StartingDeadlineSeconds != nil {
 			w.Write(LEVEL_0, "Starting Deadline Seconds:\t%ds\n", *cronJob.Spec.StartingDeadlineSeconds)
 		} else {
