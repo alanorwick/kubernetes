@@ -153,7 +153,7 @@ func (jm *Controller) syncAll() {
 func cleanupFinishedJobs(sj *batchv1beta1.CronJob, js []batchv1.Job, jc jobControlInterface,
 	sjc sjControlInterface, recorder record.EventRecorder) {
 	// If neither limits are active, there is no need to do anything.
-	if sj.Spec.FailedJobsHistoryLimit == nil && sj.Spec.SuccessfulJobsHistoryLimit == nil {
+	if sj.Spec.FailedJobsHistoryLimit == nil && sj.Spec.SuccessfulJobsHistoryLimit == nil && sj.Spec.ConcurrentJobsLimit == nil {
 		return
 	}
 

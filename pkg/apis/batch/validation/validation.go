@@ -212,7 +212,7 @@ func ValidateCronJobSpec(spec *batch.CronJobSpec, fldPath *field.Path) field.Err
 
 	if spec.ConcurrentJobsLimit != nil {
 		// zero is a valid ConcurrentJobsLimit
-		allErrs = append(allErrs, apivalidation.ValidateNonnegativeField(int64(*spec.FailedJobsHistoryLimit), fldPath.Child("concurrentJobsLimit"))...)
+		allErrs = append(allErrs, apivalidation.ValidateNonnegativeField(int64(*spec.ConcurrentJobsLimit), fldPath.Child("concurrentJobsLimit"))...)
 	}
 
 	return allErrs
