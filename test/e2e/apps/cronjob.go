@@ -60,7 +60,7 @@ var _ = SIGDescribe("CronJob", func() {
 	ginkgo.It("should schedule multiple jobs concurrently", func() {
 		ginkgo.By("Creating a cronjob")
 		cronJob := newTestCronJob("concurrent", "*/1 * * * ?", batchv1beta1.AllowConcurrent,
-			sleepCommand, nil, nil)
+			sleepCommand, nil, nil, nil)
 		cronJob, err := createCronJob(f.ClientSet, f.Namespace.Name, cronJob)
 		framework.ExpectNoError(err, "Failed to create CronJob in namespace %s", f.Namespace.Name)
 
@@ -83,7 +83,7 @@ var _ = SIGDescribe("CronJob", func() {
 	ginkgo.It("should not schedule jobs when suspended [Slow]", func() {
 		ginkgo.By("Creating a suspended cronjob")
 		cronJob := newTestCronJob("suspended", "*/1 * * * ?", batchv1beta1.AllowConcurrent,
-			sleepCommand, nil, nil)
+			sleepCommand, nil, nil, nil)
 		t := true
 		cronJob.Spec.Suspend = &t
 		cronJob, err := createCronJob(f.ClientSet, f.Namespace.Name, cronJob)
@@ -107,7 +107,7 @@ var _ = SIGDescribe("CronJob", func() {
 	ginkgo.It("should not schedule new jobs when ForbidConcurrent [Slow]", func() {
 		ginkgo.By("Creating a ForbidConcurrent cronjob")
 		cronJob := newTestCronJob("forbid", "*/1 * * * ?", batchv1beta1.ForbidConcurrent,
-			sleepCommand, nil, nil)
+			sleepCommand, nil, nil, nil)
 		cronJob, err := createCronJob(f.ClientSet, f.Namespace.Name, cronJob)
 		framework.ExpectNoError(err, "Failed to create CronJob in namespace %s", f.Namespace.Name)
 
@@ -139,7 +139,7 @@ var _ = SIGDescribe("CronJob", func() {
 	ginkgo.It("should replace jobs when ReplaceConcurrent", func() {
 		ginkgo.By("Creating a ReplaceConcurrent cronjob")
 		cronJob := newTestCronJob("replace", "*/1 * * * ?", batchv1beta1.ReplaceConcurrent,
-			sleepCommand, nil, nil)
+			sleepCommand, nil, nil, nil)
 		cronJob, err := createCronJob(f.ClientSet, f.Namespace.Name, cronJob)
 		framework.ExpectNoError(err, "Failed to create CronJob in namespace %s", f.Namespace.Name)
 
@@ -171,7 +171,7 @@ var _ = SIGDescribe("CronJob", func() {
 	ginkgo.It("should not emit unexpected warnings", func() {
 		ginkgo.By("Creating a cronjob")
 		cronJob := newTestCronJob("concurrent", "*/1 * * * ?", batchv1beta1.AllowConcurrent,
-			nil, nil, nil)
+			nil, nil, nil, nil)
 		cronJob, err := createCronJob(f.ClientSet, f.Namespace.Name, cronJob)
 		framework.ExpectNoError(err, "Failed to create CronJob in namespace %s", f.Namespace.Name)
 
@@ -194,7 +194,7 @@ var _ = SIGDescribe("CronJob", func() {
 	ginkgo.It("should remove from active list jobs that have been deleted", func() {
 		ginkgo.By("Creating a ForbidConcurrent cronjob")
 		cronJob := newTestCronJob("forbid", "*/1 * * * ?", batchv1beta1.ForbidConcurrent,
-			sleepCommand, nil, nil)
+			sleepCommand, nil, nil, nil)
 		cronJob, err := createCronJob(f.ClientSet, f.Namespace.Name, cronJob)
 		framework.ExpectNoError(err, "Failed to create CronJob in namespace %s", f.Namespace.Name)
 
@@ -237,25 +237,29 @@ var _ = SIGDescribe("CronJob", func() {
 			command      []string
 			successLimit int32
 			failedLimit  int32
+			concurrentLimit int32
 		}{
 			{
 				description:  "successful-jobs-history-limit",
 				command:      successCommand,
 				successLimit: 1, // keep one successful job
 				failedLimit:  0, // keep none failed job
+				concurrentLimit: 10, // allow 10 of the same job to run
 			},
 			{
 				description:  "failed-jobs-history-limit",
 				command:      failureCommand,
 				successLimit: 0, // keep none succcessful job
 				failedLimit:  1, // keep one failed job
+				concurrentLimit: 100, // allow 100 of the same job to run
+
 			},
 		}
 
 		for _, t := range testCases {
 			ginkgo.By(fmt.Sprintf("Creating a AllowConcurrent cronjob with custom %s", t.description))
 			cronJob := newTestCronJob(t.description, "*/1 * * * ?", batchv1beta1.AllowConcurrent,
-				t.command, &t.successLimit, &t.failedLimit)
+				t.command, &t.successLimit, &t.failedLimit, &t.concurrentLimit)
 			cronJob, err := createCronJob(f.ClientSet, f.Namespace.Name, cronJob)
 			framework.ExpectNoError(err, "Failed to create allowconcurrent cronjob with custom history limits in namespace %s", f.Namespace.Name)
 
@@ -297,7 +301,7 @@ var _ = SIGDescribe("CronJob", func() {
 
 // newTestCronJob returns a cronjob which does one of several testing behaviors.
 func newTestCronJob(name, schedule string, concurrencyPolicy batchv1beta1.ConcurrencyPolicy,
-	command []string, successfulJobsHistoryLimit *int32, failedJobsHistoryLimit *int32) *batchv1beta1.CronJob {
+	command []string, successfulJobsHistoryLimit *int32, failedJobsHistoryLimit *int32, concurrentJobsLimit *int32) *batchv1beta1.CronJob {
 	parallelism := int32(1)
 	completions := int32(1)
 	backofflimit := int32(1)
@@ -347,6 +351,7 @@ func newTestCronJob(name, schedule string, concurrencyPolicy batchv1beta1.Concur
 	}
 	sj.Spec.SuccessfulJobsHistoryLimit = successfulJobsHistoryLimit
 	sj.Spec.FailedJobsHistoryLimit = failedJobsHistoryLimit
+	sj.Spec.ConcurrentJobsLimit = concurrentJobsLimit
 	if command != nil {
 		sj.Spec.JobTemplate.Spec.Template.Spec.Containers[0].Command = command
 	}

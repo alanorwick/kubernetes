@@ -495,7 +495,7 @@ func TestCleanupFinishedJobs_DeleteOrNot(t *testing.T) {
 
 		sj.Spec.SuccessfulJobsHistoryLimit = tc.successfulJobsHistoryLimit
 		sj.Spec.FailedJobsHistoryLimit = tc.failedJobsHistoryLimit
-		sj.Spec.concurrentJobsLimit = tc.concurrentJobsLimit
+		sj.Spec.ConcurrentJobsLimit = tc.concurrentJobsLimit
 		
 		var (
 			job *batchv1.Job
