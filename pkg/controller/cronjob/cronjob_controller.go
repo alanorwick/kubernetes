@@ -190,7 +190,7 @@ func cleanupFinishedJobs(sj *batchv1beta1.CronJob, js []batchv1.Job, jc jobContr
 
 	if sj.Spec.ConcurrentJobsLimit != nil {
 		removeOldestJobs(sj,
-			js,
+			runningJobs,
 			jc,
 			*sj.Spec.ConcurrentJobsLimit,
 			recorder)
